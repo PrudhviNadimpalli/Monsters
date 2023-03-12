@@ -1,54 +1,38 @@
-
 import './App.css'
-import { Component } from 'react';
-import CardList from './components/card-list/card-list.component';
+import { useState, useEffect } from 'react'
+import CardList from './components/card-list/card-list.component'
 import SearchBar from './components/search-bar/search-bar.component'
-class App extends Component {
-  constructor() {
-    super()
-    this.state = {
-      monsters: [],
-      searchFeild: '',
+
+const App = () => {
+  const [searchField, setSearchField] = useState('')
+  const [monsters, setMonsters] = useState([])
+
+  useEffect(() => {
+    const fetchMonsters = async () => {
+      const response = await fetch('https://jsonplaceholder.typicode.com/users')
+      const data = await response.json()
+      setMonsters(data)
     }
+
+    fetchMonsters()
+  }, [searchField])
+
+  const onSearchChange = (event) => {
+    const searchFieldString = event.target.value
+    setSearchField(searchFieldString.toLowerCase())
   }
 
-  onSearchChange = (event) => {
-    const searchFeild = event.target.value
-    // eslint-disable-next-line react/no-direct-mutation-state, no-unused-expressions
-    this.setState(() => {
-      return { searchFeild }
-    })
-  }
+  const filtered = monsters.filter((monster) => {
+    return monster.name.toLowerCase().includes(searchField)
+  })
 
-  componentDidMount() {
-    const data = [
-      { id: 1, name: 'Prudhvi', age: 18 },
-      { id: 2, name: 'Revanth', age: 27 },
-      { id: 3, name: 'Puja', age: 24 },
-      { id: 4, name: 'Charshitha', age: 22 },
-      {id:5 ,name :'Surya',age :25},
-      {id:6,name:'Keerthi', age:27},
-      {id:7, name:"Vinod", age :27},
-      {id:8 ,name:"Sateesh",age:27},
-      {id:9, name :"Vinathi",age:26}
-    ]
-    // eslint-disable-next-line react/no-direct-mutation-state
-    this.setState(() => (this.state.monsters = data))
-  }
-  render() {
-    const searchData = this.state.searchFeild.toLocaleLowerCase()
-    const filtered = this.state.monsters.filter((ele) => {
-         return ele.name.toLocaleLowerCase().includes(searchData)
-       })
-    return (
-      <div className="App">
-        <h1 className='app-title '>Monsters</h1>
-       <SearchBar onChangeSearch ={this.onSearchChange} />
-        <CardList monsters ={filtered}/>
-
-      </div>
-    )
-  }
+  return (
+    <div className="App">
+      <h1 className="app-title">Monsters</h1>
+      <SearchBar onChangeSearch={onSearchChange} />
+      <CardList monsters={filtered} />
+    </div>
+  )
 }
 
 export default App
